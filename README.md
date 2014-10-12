@@ -10,7 +10,7 @@ No piece of software is ever completed, feel free to contribute and be humble
 
 var Yarr = require('vz.yarr'),
     walk = require('vz.walk'),
-    yarr = new Yarr,
+    yarr = new Yarr(),
     result;
 
 walk(function*(){
