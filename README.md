@@ -15,13 +15,13 @@ var Yarr = require('vz.yarr'),
 
 walk(function*(){
   result = yield yarr.pop();
+  console.log(result); // Hello world!
 });
 
 walk(function*(){
   yield yarr.push('Hello world!');
 });
 
-console.log(result); // Hello world!
 
 ```
 
