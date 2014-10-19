@@ -93,6 +93,7 @@ Object.defineProperties(Yarr.prototype,{
       length = Math.max(0,length);
       // TODO
     }
-  }
+  },
+  isYarr: {value: true}
 });
 
