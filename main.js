@@ -2,7 +2,14 @@ var Yarr,
     Property = require('vz.property'),
     Yielded = require('vz.yielded'),
     walk = require('vz.walk'),
-    arrays = new Property();
+    
+    arrays = new Property(),
+    awaiting = new Property(),
+    datas = new Property();
+
+function onConsumed(){
+  awaiting.get(this).value = datas.get(this).length;
+}
 
 module.exports = Yarr = function(){
   
@@ -15,11 +22,15 @@ module.exports = Yarr = function(){
 };
 
 function pushOne(data,a){
-  var yd = new Yielded();
+  var yd = new Yielded(),
+      oyd;
   
   if(a.out.length){
-    a.out.pop().value = data;
-    yd.value = null;
+    oyd = a.out.pop();
+    awaiting.set(oyd,yd);
+    datas.set(oyd,a.datas);
+    oyd.on('consumed',onConsumed);
+    oyd.value = data;
   }else{
     a.in.push(yd);
     a.datas.push(data);
@@ -39,8 +50,11 @@ function unshiftOne(data,a){
   var yd = new Yielded();
   
   if(a.out.length){
-    a.out.shift().value = data;
-    yd.value = null;
+    oyd = a.out.shift();
+    awaiting.set(oyd,yd);
+    datas.set(oyd,a.datas);
+    oyd.on('consumed',onConsumed);
+    oyd.value = data;
   }else{
     a.in.unshift(yd);
     a.datas.unshift(data);
@@ -66,7 +80,9 @@ Object.defineProperties(Yarr.prototype,{
     
     if(a.in.length){
       yd.value = a.datas.pop();
-      a.in.pop().value = this.length;
+      awaiting.set(yd,a.in.pop());
+      datas.set(yd,a.datas);
+      yd.on('consumed',onConsumed);
     }else a.out.push(yd);
     
     return yd;
@@ -77,7 +93,9 @@ Object.defineProperties(Yarr.prototype,{
     
     if(a.in.length){
       yd.value = a.datas.shift();
-      a.in.shift().value = this.length;
+      awaiting.set(yd,a.in.shift());
+      datas.set(yd,a.datas);
+      yd.on('consumed',onConsumed);
     }else a.out.unshift(yd);
     
     return yd;
