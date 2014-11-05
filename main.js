@@ -109,7 +109,9 @@ Object.defineProperties(Yarr.prototype,{
     },
     set: function(length){
       length = Math.max(0,length);
-      // TODO
+      
+      while(length > this.length) this.push(undefined);
+      while(length < this.length) this.pop();
     }
   },
   isYarr: {value: true}
