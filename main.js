@@ -2,22 +2,23 @@ var Yarr,
     Property = require('vz.property'),
     Yielded = require('vz.yielded'),
     walk = require('vz.walk'),
+    Su = require('vz.rand').Su,
     
-    arrays = new Property(),
-    awaiting = new Property(),
-    datas = new Property();
+    arrays = Su(),
+    awaiting = Su(),
+    datas = Su();
 
 function onConsumed(){
-  awaiting.get(this).value = datas.get(this).length;
+  this[awaiting].value = this[datas].length;
 }
 
 module.exports = Yarr = function(){
   
-  arrays.set(this,{
+  this[arrays] = {
     in: [],
     datas: [],
     out: []
-  });
+  };
   
 };
 
@@ -27,8 +28,8 @@ function pushOne(data,a){
   
   if(a.out.length){
     oyd = a.out.pop();
-    awaiting.set(oyd,yd);
-    datas.set(oyd,a.datas);
+    oyd[awaiting] = yd;
+    oyd[datas] = a.datas;
     oyd.on('consumed',onConsumed);
     oyd.value = data;
   }else{
@@ -51,8 +52,8 @@ function unshiftOne(data,a){
   
   if(a.out.length){
     oyd = a.out.shift();
-    awaiting.set(oyd,yd);
-    datas.set(oyd,a.datas);
+    oyd[awaiting] = yd;
+    oyd[datas] = a.datas;
     oyd.on('consumed',onConsumed);
     oyd.value = data;
   }else{
@@ -72,40 +73,40 @@ function* unshiftAll(datas,a){
 
 Object.defineProperties(Yarr.prototype,{
   push: {value: function(){
-    return walk(pushAll,[arguments,arrays.get(this)]);
+    return walk(pushAll,[arguments,this[arrays]]);
   }},
   pop: {value: function(){
-    var a = arrays.get(this),
+    var a = this[arrays],
         yd = new Yielded();
     
     if(a.in.length){
       yd.value = a.datas.pop();
-      awaiting.set(yd,a.in.pop());
-      datas.set(yd,a.datas);
+      yd[awaiting] = a.in.pop();
+      yd[datas] = a.datas;
       yd.on('consumed',onConsumed);
     }else a.out.push(yd);
     
     return yd;
   }},
   shift: {value: function(){
-    var a = arrays.get(this),
+    var a = this[arrays],
         yd = new Yielded();
     
     if(a.in.length){
       yd.value = a.datas.shift();
-      awaiting.set(yd,a.in.shift());
-      datas.set(yd,a.datas);
+      yd[awaiting] = a.in.shift();
+      yd[datas] = a.datas;
       yd.on('consumed',onConsumed);
     }else a.out.unshift(yd);
     
     return yd;
   }},
   unshift: {value: function(){
-    return walk(unshiftAll,[arguments,arrays.get(this)]);
+    return walk(unshiftAll,[arguments,this[arrays]]);
   }},
   length: {
     get: function(){
-      return arrays.get(this).datas.length;
+      return this[arrays].datas.length;
     },
     set: function(length){
       length = Math.max(0,length);
