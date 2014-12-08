@@ -1,5 +1,4 @@
 var Yarr,
-    Property = require('vz.property'),
     Yielded = require('vz.yielded'),
     walk = require('vz.walk'),
     Su = require('vz.rand').Su,
