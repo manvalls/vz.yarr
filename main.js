@@ -45,7 +45,8 @@ Object.defineProperties(Yarr.prototype,{
     }
     
     this[checkQueue]();
-    yield yds;
+    
+    for(i = 0;i < yds.length;i++) yield yds[i];
     
     return this[data].length;
   })},
@@ -61,7 +62,8 @@ Object.defineProperties(Yarr.prototype,{
     }
     
     this[checkQueue]();
-    yield yds;
+    
+    for(i = 0;i < yds.length;i++) yield yds[i];
     
     return this[data].length;
   })},
