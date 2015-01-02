@@ -1,6 +1,6 @@
 {
   "name": "vz.yarr",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Yielded returning array",
   "main": "main.js",
   "dependencies": {
