@@ -5,9 +5,7 @@ var Yarr,
     
     data = Su(),
     queue = Su(),
-    value = Su(),
-    
-    checkQueue = Su();
+    value = Su();
 
 module.exports = Yarr = function Yarr(){
   this[data] = [];
@@ -18,18 +16,18 @@ function onConsumed(e,yd){
   yd.done = true;
 }
 
-Yarr.prototype[checkQueue] = function(){
+function checkQueue(yarr){
   var q,d;
   
-  while(this[data].length && this[queue].length){
-    d = this[data].shift();
-    q = this[queue].shift();
+  while(yarr[data].length && yarr[queue].length){
+    d = yarr[data].shift();
+    q = yarr[queue].shift();
     
     q.on('consumed',onConsumed,d);
     q.value = d[value];
   }
   
-};
+}
 
 Object.defineProperties(Yarr.prototype,{
   
@@ -44,7 +42,7 @@ Object.defineProperties(Yarr.prototype,{
       yds.push(yd);
     }
     
-    this[checkQueue]();
+    checkQueue(this);
     
     for(i = 0;i < yds.length;i++) yield yds[i];
     
@@ -61,7 +59,7 @@ Object.defineProperties(Yarr.prototype,{
       yds.push(yd);
     }
     
-    this[checkQueue]();
+    checkQueue(this);
     
     for(i = 0;i < yds.length;i++) yield yds[i];
     
@@ -72,7 +70,7 @@ Object.defineProperties(Yarr.prototype,{
     var yd = new Yielded();
     
     this[queue].push(yd);
-    this[checkQueue]();
+    checkQueue(this);
     
     return yd;
   }},
@@ -80,7 +78,7 @@ Object.defineProperties(Yarr.prototype,{
     var yd = new Yielded();
     
     this[queue].unshift(yd);
-    this[checkQueue]();
+    checkQueue(this);
     
     return yd;
   }},
