@@ -3,6 +3,9 @@ var Yarr,
     walk = require('vz.walk'),
     Su = require('vz.rand').Su,
     
+    dataYd = Su(),
+    queueYd = Su(),
+    
     data = Su(),
     queue = Su(),
     value = Su();
@@ -10,6 +13,9 @@ var Yarr,
 module.exports = Yarr = function Yarr(){
   this[data] = [];
   this[queue] = [];
+  
+  this[dataYd] = new Yielded();
+  this[queueYd] = new Yielded();
 };
 
 function onConsumed(e,yd){
@@ -17,22 +23,33 @@ function onConsumed(e,yd){
 }
 
 function checkQueue(yarr){
-  var q,d;
+  var q,d,
+      dl = yarr[data].length > 0,
+      ql = yarr[queue].length > 0;
   
-  while(yarr[data].length && yarr[queue].length){
+  if(!(dl && ql)) return;
+  
+  do{
     d = yarr[data].shift();
     q = yarr[queue].shift();
     
     q.on('consumed',onConsumed,d);
     q.value = d[value];
-  }
+  }while(yarr[data].length && yarr[queue].length);
   
+  if(yarr[data].length) yarr[dataYd].done = true;
+  else if(dl) yarr[dataYd] = new Yielded();
+  
+  if(yarr[queue].length) yarr[queueYd].done = true;
+  else if(ql) yarr[queueYd] = new Yielded();
 }
 
 Object.defineProperties(Yarr.prototype,{
   
   push: {value: walk.wrap(function*(){
     var i,yd,yds = [];
+    
+    if(arguments.length == 0) return;
     
     for(i = 0;i < arguments.length;i++){
       yd = new Yielded();
@@ -50,6 +67,8 @@ Object.defineProperties(Yarr.prototype,{
   })},
   unshift: {value: walk.wrap(function*(){
     var i,yd,yds = [];
+    
+    if(arguments.length == 0) return;
     
     for(i = 0;i < arguments.length;i++){
       yd = new Yielded();
@@ -82,6 +101,24 @@ Object.defineProperties(Yarr.prototype,{
     
     return yd;
   }},
+  
+  untilData: {value: walk.wrap(function*(){
+    if(!yarr[data].length) yield this[dataYd];
+  })},
+  untilQueued: {value: walk.wrap(function*(){
+    if(!yarr[queue].length) yield this[queueYd];
+  })},
+  
+  insist: {value: walk.wrap(function*(){
+    var i = 0;
+    
+    while(true){
+      yield this.untilQueued();
+      yield this.push(arguments[i]);
+      i = (i + 1) % arguments.length;
+    }
+    
+  })},
   
   length: {
     get: function(){
