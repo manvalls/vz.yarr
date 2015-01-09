@@ -109,6 +109,16 @@ Object.defineProperties(Yarr.prototype,{
     if(!yarr[queue].length) yield this[queueYd];
   })},
   
+  pipe: {value: walk.wrap(function*(){
+    var i,data;
+    
+    while(true){
+      data = yield this.shift();
+      for(i = 0;i < arguments.length;i++) yield arguments[i].push(data);
+    }
+    
+  })},
+  
   insist: {value: walk.wrap(function*(){
     var i = 0;
     
