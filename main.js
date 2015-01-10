@@ -22,20 +22,23 @@ function onConsumed(e,yd){
   yd.done = true;
 }
 
-function checkQueue(yarr){
+function checkQueue(yarr,pop){
   var q,d,
       dl = yarr[data].length > 0,
       ql = yarr[queue].length > 0;
   
-  if(!(dl && ql)) return;
-  
-  do{
-    d = yarr[data].shift();
-    q = yarr[queue].shift();
+  while(yarr[data].length && yarr[queue].length){
+    if(pop){
+      d = yarr[data].pop();
+      q = yarr[queue].pop();
+    }else{
+      d = yarr[data].shift();
+      q = yarr[queue].shift();
+    }
     
     q.on('consumed',onConsumed,d);
     q.value = d[value];
-  }while(yarr[data].length && yarr[queue].length);
+  }
   
   if(yarr[data].length) yarr[dataYd].done = true;
   else if(dl) yarr[dataYd] = new Yielded();
@@ -59,7 +62,7 @@ Object.defineProperties(Yarr.prototype,{
       yds.push(yd);
     }
     
-    checkQueue(this);
+    checkQueue(this,true);
     
     for(i = 0;i < yds.length;i++) yield yds[i];
     
@@ -89,7 +92,7 @@ Object.defineProperties(Yarr.prototype,{
     var yd = new Yielded();
     
     this[queue].push(yd);
-    checkQueue(this);
+    checkQueue(this,true);
     
     return yd;
   }},
@@ -103,10 +106,10 @@ Object.defineProperties(Yarr.prototype,{
   }},
   
   untilData: {value: walk.wrap(function*(){
-    if(!yarr[data].length) yield this[dataYd];
+    if(!this[data].length) yield this[dataYd];
   })},
   untilQueued: {value: walk.wrap(function*(){
-    if(!yarr[queue].length) yield this[queueYd];
+    if(!this[queue].length) yield this[queueYd];
   })},
   
   pipe: {value: walk.wrap(function*(){

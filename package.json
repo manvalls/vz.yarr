@@ -8,6 +8,12 @@
     "vz.yielded": "",
     "vz.walk": ""
   },
+  "devDependencies": {
+    "vz.test": ""
+  },
+  "scripts": {
+    "test": "node --harmony test"
+  },
   "engines": {
     "node": ">=0.11.x"
   },
