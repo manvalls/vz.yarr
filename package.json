@@ -9,10 +9,14 @@
     "vz.walk": ""
   },
   "devDependencies": {
-    "vz.test": ""
+    "vz.test": "",
+    "testling": ""
   },
   "scripts": {
-    "test": "node --harmony test"
+    "test": "testling && node --harmony test"
+  },
+  "testling": {
+    "files": "test.js"
   },
   "engines": {
     "node": ">=0.11.x"
