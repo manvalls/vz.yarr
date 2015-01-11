@@ -167,7 +167,7 @@ test("'length'",function(){
       var yarr = new Yarr(),i;
       
       yarr.length = 5;
-      for(i = 0;i < 5;i++) assert.equal(yield yarr.shift(),undefined);
+      for(i = 0;i < 5;i++) assert.equal((yield yarr.shift()),undefined);
     });
     
     test('Less than initial',function*(){
